@@ -1,24 +1,30 @@
-# Docker Blueprint Standard
+# Docker Blueprint
 
-This repository establishes a rigid, portable standard for all Docker projects on this system.
-
-## The Regulation
-1. **Isolation**: No global dependencies. Every service must define its networks and volumes relative to its own folder.
-2. **Persistence**: All data MUST be mounted to the local `volumes/` directory relative to the `docker-compose.yml`. No absolute paths.
-3. **Configuration**: Credentials and secrets are never committed. Only `.env.template` exists in the repo.
-4. **Lifecycle**: Deployment is handled via `Makefile` targets:
-   - `make up` = `docker compose up -d`
-   - `make logs` = `docker compose logs -f`
-   - `make backup` = Generates a tarball of the `volumes/` directory.
+A standardized, portable, and self-contained structure for Docker projects.
 
 ## Project Structure
+Every project must follow this structure to ensure portability:
+
 ```text
 /docker/<project-name>/
-├── docker-compose.yml       # Immutable source of truth
+├── docker-compose.yml       # The immutable source of truth
+├── Dockerfile               # (Optional) Build context
 ├── .env.template            # Required vars (keys, paths)
-├── Makefile                 # Lifecycle commands
-├── README.md                # Project-specific docs
-└── volumes/                 # Local persistence
+├── Makefile                 # Standardized lifecycle commands
+├── README.md                # Project-specific documentation
+└── volumes/                 # Local mount points
     ├── data/
     └── config/
 ```
+
+## Core Principles
+1. **Absolute Self-Containment**: A project is 100% self-contained. All data—including configuration, databases, cache, and media/assets—must reside within the `volumes/` directory.
+2. **Relative Paths**: No absolute paths are permitted in `docker-compose.yml`. All volume mounts must use relative paths (e.g., `./volumes/...`).
+3. **Configuration**: Sensitive credentials must never be committed. Use `.env.template` to define required variables.
+4. **Lifecycle Standardization**: Use the provided `Makefile` for unified management across all services.
+
+## Lifecycle Management
+- `make up`: Start the service in detached mode.
+- `make down`: Stop and remove the service.
+- `make logs`: Follow logs in real-time.
+- `make backup`: Generate a compressed archive of the `volumes/` directory.
